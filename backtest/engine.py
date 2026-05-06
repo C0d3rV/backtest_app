@@ -1,4 +1,5 @@
 from strategies import moving_average_crossover_strategy
+from data import data_download
 
 def backtest_engine(ticker, start_date, end_date):
 
@@ -23,29 +24,16 @@ def calculate_portfolio_value(shares, price):
     return shares * price
 
 
-def trade(signal, capital, price):
+def trade(ticker, capital, start_date, end_date):
     """Execute trades based on the signal and update capital and shares."""
 
-    if not isinstance(signal, (int, float)):
-        raise ValueError("Signal must be a numeric value.")
-    
-    if not isinstance(capital, (int, float)):
-        raise ValueError("Capital must be a numeric value.")
-    
-    if not isinstance(price, (int, float)):
-        raise ValueError("Price must be a numeric value.")
-    
-    if not signal:
-        raise ValueError("Signal is missing.")
-    
-    if capital is None:
-        raise ValueError("Capital is missing.") 
-    
-    if price is None:
-        raise ValueError("Price is missing.")
-
+    signal = moving_average_crossover_strategy(ticker, start_date, end_date)
+    price = data_download(ticker, start_date, end_date)
+    new_df = price.to_frame()
+    new_df['Signal'] = signal
     shares = 0
     try:
+
         if signal == 1:  # BUY
             shares = buy_shares(capital, price)
             capital -= shares * price
