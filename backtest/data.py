@@ -5,7 +5,7 @@ import datetime
 
 def data_download(ticker, start_date, end_date):
 
-    """Download historical stock data for Tciker from Yahoo Finance."""
+    """Download historical stock data for Tciker from Yahoo Finance. Return a pandas Series of closing prices."""
 
     if not isinstance(ticker, str):
         raise ValueError("Ticker symbol must be a string.")
