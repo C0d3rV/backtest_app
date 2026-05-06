@@ -56,3 +56,4 @@ def trade(signal, capital, price):
         print(f"Error occurred while executing trade: {e}")
 
     return capital, shares
+
