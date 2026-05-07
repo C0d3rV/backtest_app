@@ -49,12 +49,34 @@ def backtest_engine(capital, ticker, start_date, end_date):
         print(f"Error occurred during backtest simulation: {e}")
         return
     
-    final_row = new_df.iloc[-1]
-    profit_loss = final_row['capital'] + (final_row['shares'] * final_row['Close']) - capital
-    return new_df, profit_loss
+    #final_row = new_df.iloc[-1]
+    #profit_loss = final_row['capital'] + (final_row['shares'] * final_row['Close']) - capital
+    return new_df
 
 
-backtest_result, ud_profit_loss = backtest_engine(
+
+def trade_stats(capital, ticker, start_date, end_date):
+    """Calculate trade statistics from the backtest result."""
+
+    trade_data = backtest_engine(capital, ticker, start_date, end_date)
+    initial_capital = capital
+
+    total_gains  = (trade_data['capital'].iloc[-1] - initial_capital) / initial_capital * 100
+
+    total_buy = len(trade_data[trade_data['Signal'] == 1])
+    total_sell = len(trade_data[trade_data['Signal'] == -1])
+    total_trades = total_buy + total_sell
+
+    for i in range(1, len(trade_data)):
+        current_row = trade_data.iloc[i]
+        previous_row = trade_data.iloc[i-1]
+
+        trade_data['daily_pnl'] = (current_row['capital'] - previous_row['capital']) / previous_row['capital'] * 100
+
+    return total_gains, total_trades, trade_data
+
+
+gains, trades, trade_sheet = trade_stats(
     capital=100000, 
     ticker='YESBANK.NS', 
     start_date='2024-01-01', 
@@ -62,6 +84,6 @@ backtest_result, ud_profit_loss = backtest_engine(
     )
 
 
-print(f"Total Profit/Loss: {ud_profit_loss}")
+print(f"Total Profit/Loss: {gains:.2f}%")
 
-backtest_result.to_csv('ud_backtest_results.csv', index=True)
+trade_sheet.to_csv('yes_backtest_results.csv', index=True)
